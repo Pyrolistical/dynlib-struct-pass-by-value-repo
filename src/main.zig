@@ -4,9 +4,7 @@ pub const SomeStruct = extern struct {
     x: u8,
 };
 
-extern fn viaStructExtern(value: SomeStruct) callconv(.C) void;
-extern fn viaStructPtrExtern(value: *const SomeStruct) callconv(.C) void;
-extern fn viaValueExtern(value: u8) callconv(.C) void;
+extern fn viaStruct(value: SomeStruct) callconv(.C) void;
 
 pub fn main() !void {
     const value = SomeStruct{ .x = 11 };
@@ -15,15 +13,11 @@ pub fn main() !void {
     var lib = try std.DynLib.open("./repo.dll");
     defer lib.close();
 
-    const viaStructDynLib = lib.lookup(*const fn (value: SomeStruct) void, "viaStructDynLib").?;
+    const viaStructDynLib = lib.lookup(*const fn (value: SomeStruct) void, "viaStruct").?;
+
+    std.debug.print("viaStructDynLib ", .{});
     viaStructDynLib(value);
-    viaStructExtern(value);
 
-    // const viaStructPtrDynLib = lib.lookup(*const fn (value: *const SomeStruct) void, "viaStructPtrDynLib").?;
-    // viaStructPtrDynLib(&value);
-    // viaStructPtrExtern(&value);
-
-    // const viaValueDynLib = lib.lookup(*const fn (value: u8) void, "viaValueDynLib").?;
-    // viaValueDynLib(value.x);
-    // viaValueExtern(value.x);
+    std.debug.print("viaStruct ", .{});
+    viaStruct(value);
 }
